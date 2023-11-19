@@ -1,0 +1,25 @@
+project_name
+    ->boostrap
+        ->app.php
+        ->config.php
+    ->config
+        ->helper.php
+        ->database.php
+    ->src
+        ->Controlles
+            ->TestingController.php
+        ->Lib
+            ->Annotations
+                ->RestController.php
+                ->Middleware.php
+                ->Prefix.php
+                ->RouteGet.php
+                ->RoutePost.php
+                ->RoutePut.php
+                ->RouteDelete.php
+            ->Router.php
+        ->Middleware
+            ->JwtMiddleware.php
+    ->public
+        ->index.php
+    ->server

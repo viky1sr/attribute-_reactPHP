@@ -1,0 +1,6 @@
+#!/usr/bin/env php
+<?php
+$rootDir = __DIR__;
+$publicDir = $rootDir . '/public';
+
+passthru("php $publicDir/index.php");

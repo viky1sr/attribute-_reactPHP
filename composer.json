@@ -1,0 +1,38 @@
+{
+  "name": "jamkrindo/php_native",
+  "description": "Jamkrindo PHP Native",
+  "keywords": ["jamkrindo", "php","native"],
+  "license": "MIT",
+  "type": "project",
+  "require": {
+    "php": "^8.1",
+    "ext-pdo": "*",
+    "php-di/php-di": "7.0.6",
+    "react/http": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Jamkrindo\\": "src/"
+    },
+    "files": [
+      "config/helper.php"
+    ]
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/"
+    ]
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true,
+      "php-http/discovery": true
+    },
+    "disable-tls": false
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
