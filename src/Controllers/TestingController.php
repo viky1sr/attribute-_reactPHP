@@ -7,6 +7,7 @@ use Jamkrindo\Annotations\Prefix;
 use Jamkrindo\Annotations\RestController;
 use Jamkrindo\Annotations\RouteGet;
 use Jamkrindo\Lib\App\RequestBody;
+use Jamkrindo\Lib\DB;
 use React\Http\Message\Response;
 
 #[RestController(TestingController::class)]
@@ -17,9 +18,10 @@ class TestingController
     #[RouteGet("/data-user/{id}")]
     public function getDataById(RequestBody $request,int $id) : Response
     {
+        $testDB = DB::query("select * from users")->firstRow();
         return Response::json([
             'message' => 'Success',
-            'data' => $request->getBodyArray()
+            'data' => $testDB
         ]);
     }
 
