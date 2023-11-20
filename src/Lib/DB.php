@@ -41,7 +41,8 @@ class DB
     public static function connection(): PDO
     {
         if (!isset(self::$pdo)) {
-            $dsn = 'sqlsrv:server='.env('DB_HOST').';Database='.env('DB_DATABASE');
+            $connection = env("DB_CONNECTION","sqlsrv");
+            $dsn = $connection.':server='.env('DB_HOST').';Database='.env('DB_DATABASE');
             self::$pdo = new PDO($dsn,  env("DB_USERNAME"), env("DB_PASSWORD"));
             self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         }
