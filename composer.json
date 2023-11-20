@@ -7,8 +7,10 @@
   "require": {
     "php": "^8.1",
     "ext-pdo": "*",
+    "monolog/monolog": "^3.5",
     "php-di/php-di": "7.0.6",
-    "react/http": "*"
+    "react/http": "*",
+    "vlucas/phpdotenv": "^5.5"
   },
   "autoload": {
     "psr-4": {

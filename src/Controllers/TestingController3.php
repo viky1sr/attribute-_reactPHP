@@ -9,11 +9,20 @@ use Jamkrindo\Annotations\RouteGet;
 use Jamkrindo\Lib\App\RequestBody;
 use React\Http\Message\Response;
 
-#[RestController(TestingController::class)]
-#[Prefix("/api")]
+#[RestController(TestingController3::class)]
+#[Prefix("/api/test3")]
 #[Middleware(['jwt'])]
-class TestingController
+class TestingController3
 {
+    #[RouteGet("/data-user/{name}")]
+    public function getDataByName(RequestBody $request,string $name) : Response
+    {
+        return Response::json([
+            'message' => 'Success',
+            'data' => 'Name'
+        ]);
+    }
+
     #[RouteGet("/data-user/{id}")]
     public function getDataById(RequestBody $request,int $id) : Response
     {
@@ -22,6 +31,8 @@ class TestingController
             'data' => $request->getBodyArray()
         ]);
     }
+
+
 
     #[RouteGet("/data-user/genre")]
     public function get(RequestBody $request,int $id) : void

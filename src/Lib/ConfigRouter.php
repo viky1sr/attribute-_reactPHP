@@ -3,10 +3,9 @@
 namespace Jamkrindo\Lib;
 
 use DI\Attribute\Inject;
+use Jamkrindo\Lib\Formater\FormaterCLI;
 use JetBrains\PhpStorm\NoReturn;
 use ReflectionClass;
-use ReflectionFunction;
-use ReflectionMethod;
 
 class ConfigRouter
 {
@@ -64,27 +63,6 @@ class ConfigRouter
         }
     }
 
-
-    private function cacheRoute(string $class,string $method,string $uri) : array
-    {
-        $middleware = !empty($this->attributes[$class]['Middleware']) ? $this->attributes[$class]['Middleware'] : null;
-        $routes = $this->attributes[$class]['routes'];
-        foreach ($routes as $key => $items) {
-            $uriHttp = explode("/",$uri);
-            $uriRoute = explode("/",$key);
-            if(count($uriHttp) === count($uriRoute)) {
-                $httpSlice2 = implode('',array_slice($uriHttp,1,-1));
-                $routeSlice2 = "xxx ".implode('',array_slice($uriRoute,1,-1));
-                foreach ($items as $item) {
-                    if(is_int(strpos($routeSlice2,$httpSlice2)) && strtolower($method) === strtolower($item['method'])){
-                        return array_merge(['middleware' => $middleware],$item);
-                    }
-                }
-            }
-        }
-        return [];
-    }
-
     #[NoReturn]
     private function processController(string $class): void
     {
@@ -95,24 +73,32 @@ class ConfigRouter
             $instance = $attribute->newInstance();
             $this->processAnnotationNamespace($attribute->getName(), $instance->value, $class);
         }
-
-        $this->processControllerMethods($reflectionClass->getMethods(), $class);
+        $this->processControllerMethods($reflectionClass, $class);
     }
 
     #[NoReturn]
-    private function processControllerMethods(array $methods, string $class): void
+    private function processControllerMethods(object $reflectionClass, string $class): void
     {
-        foreach ($methods as $method) {
-            $this->isValidFunctionDeclaration($method,$class);
+        foreach ($reflectionClass->getMethods() as $method) {
+            $paramTypes = $this->isValidFunctionDeclaration($reflectionClass,$method,$class);
             $methodAttributes = $method->getAttributes();
 
             foreach ($methodAttributes as $attribute) {
                 $attributeInstance = $attribute->newInstance();
-                $routeInfo = $attributeInstance->getNameUri();
+                $routeInfo  = $attributeInstance->getNameUri();
                 $routeKey = $this->prefix . '+' . $routeInfo['uri'] . '+' . $routeInfo['method'];
+                $maxRegex = $this->isValidationUriInParameter(
+                    $routeInfo['uri'],
+                    $paramTypes[$class][$method->getName()],
+                    $class,
+                    $method->getName(),
+                    $method->getStartLine()
+                );
                 $dataRoute = array_merge($routeInfo, [
                     'action' => $method->getName(),
                     'controller' => $class,
+                    'parameter_types' => $paramTypes[$class][$method->getName()],
+                    'max_regex' => $maxRegex
                 ]);
                 $this->handleRouteConflictAcrossAllControllers(
                     $routeKey, $routeInfo, $dataRoute, $class, $method->getName()
@@ -121,27 +107,49 @@ class ConfigRouter
         }
     }
 
-    #[NoReturn]
-    private function isValidFunctionDeclaration(object $reflectionFunction,string $class) : void
+    private function isValidationUriInParameter(
+        string $routePattern,array $paramters,string $class,string $methodName, string $getStartLine
+    ) : int|string
     {
-        $checkReturnType = $reflectionFunction->getReturnType();
-        $additionalInfo = self::ANSI_YELLOW_BG.$class.", line: ".$reflectionFunction->getStartLine().self::ANSI_RESET;
-        if(is_null($checkReturnType)) {
-            echo self::ANSI_RED_BOLD . "Fatal Error: Missing return type declaration for method {$reflectionFunction->getName()}\n" . self::ANSI_RESET;
-            echo self::ANSI_RED_BOLD . "Additional Info: " . self::ANSI_RESET . $additionalInfo . "\n";
-            die;
-        }
-
-        foreach ($reflectionFunction->getParameters() as $parameter)
-        {
-            if(!$parameter->hasType()){
-                $parameterName = $parameter->getName();
-                echo self::ANSI_RED_BOLD . "Fatal Error: Missing type declaration for parameter \$${parameterName} in {$reflectionFunction->getName()}\n" . self::ANSI_RESET;
-                echo self::ANSI_RED_BOLD . "Additional Info: " . self::ANSI_RESET . $additionalInfo . "\n";
+        $pattern = '/\{([^}]+)\}/';
+        preg_match_all($pattern, $routePattern, $matches);
+        foreach ($matches[1] as $field) {
+            if(empty($paramters[$field])) {
+                $additionalInfo = self::ANSI_YELLOW_BG . $class . ", line: " . $getStartLine . self::ANSI_RESET;
+                $errorMessage = "Fatal Error: Missing variable \${$field} in URL {$routePattern} for method {$methodName}";
+                $additionalInfoMessage = "Additional Info: " . $additionalInfo;
+                echo self::ANSI_RED_BOLD . $errorMessage . "\n" . self::ANSI_RESET;
+                echo self::ANSI_RED_BOLD . $additionalInfoMessage . "\n" . self::ANSI_RESET;
                 die;
             }
         }
+        return count($matches[1]);
+    }
 
+    private function isValidFunctionDeclaration(object $reflectionClass,object $method,string $class) : array | string
+    {
+        $reflectionMethod = $reflectionClass->getMethod($method->getName());
+        $parameters = $reflectionMethod->getParameters();
+        $checkReturnType = $method->getReturnType();
+        $additionalInfo = self::ANSI_YELLOW_BG.$class.", line: ".$method->getStartLine().self::ANSI_RESET;
+        if(is_null($checkReturnType)) {
+            echo self::ANSI_RED_BOLD . "Fatal Error: Missing return type declaration for method {$method->getName()}\n" . self::ANSI_RESET;
+            echo self::ANSI_RED_BOLD . "Additional Info: " . self::ANSI_RESET . $additionalInfo . "\n";
+            die;
+        }
+        $methodTamps = [];
+        foreach($parameters as $parameter) {
+            $type = $parameter->getType();
+            $parameterName = $parameter->getName();
+            if(!$type){
+                echo self::ANSI_RED_BOLD . "Fatal Error: Missing type declaration for parameter \${$parameterName} in {$method->getName()}\n" . self::ANSI_RESET;
+                echo self::ANSI_RED_BOLD . "Additional Info: " . self::ANSI_RESET . $additionalInfo . "\n";
+                die;
+            }
+            $methodTamps[$class][$method->getName()][$parameterName] = $type->getName();
+        }
+
+        return $methodTamps;
     }
 
     #[NoReturn]

@@ -12,8 +12,15 @@ use Attribute;
 class RouteDelete
 {
     public function __construct(
-        protected string $uri
-    ) {
-        RestControllerUsed::validateRestControllerUsage();
+        protected ?string $uri = ''
+    ) {}
+
+    public function getNameUri() : array
+    {
+        return [
+            'method' => 'DELETE',
+            'uri' => $this->uri,
+            'action' => '',
+        ];
     }
 }

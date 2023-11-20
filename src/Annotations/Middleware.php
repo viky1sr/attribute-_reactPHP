@@ -13,7 +13,5 @@ class Middleware
 {
     public function __construct(
         public ?array $value
-    ) {
-//        RestControllerUsed::validateRestControllerUsage();
-    }
+    ) {}
 }

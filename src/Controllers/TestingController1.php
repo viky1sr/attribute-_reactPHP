@@ -9,10 +9,10 @@ use Jamkrindo\Annotations\RouteGet;
 use Jamkrindo\Lib\App\RequestBody;
 use React\Http\Message\Response;
 
-#[RestController(TestingController::class)]
-#[Prefix("/api")]
+#[RestController(TestingController1::class)]
+#[Prefix("/api/test1")]
 #[Middleware(['jwt'])]
-class TestingController
+class TestingController1
 {
     #[RouteGet("/data-user/{id}")]
     public function getDataById(RequestBody $request,int $id) : Response

@@ -1,6 +1,6 @@
 <?php
 
-namespace Jamkrindo\Lib;
+namespace Jamkrindo\Lib\Formater;
 
 class FormaterCLI
 {

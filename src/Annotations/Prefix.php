@@ -11,8 +11,6 @@ use Attribute;
 #[Attribute]
 class Prefix
 {
-    protected ?string $classInUse = null;
-
     public function __construct(public ?string $value)
     {}
 }

@@ -9,9 +9,13 @@ use Jamkrindo\Annotations\RouteGet;
 use Jamkrindo\Annotations\RoutePost;
 use Jamkrindo\Annotations\RoutePut;
 use Jamkrindo\Controllers\TestingController;
+use Jamkrindo\Lib\ConfigLoaderProvider;
 use Jamkrindo\Lib\ConfigRouter;
 
 require_once __DIR__ . '/../vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../');
+ConfigLoaderProvider::load(__DIR__."/../config");
+$dotenv->load();
 
 try {
     $controllerAnnotations = [];

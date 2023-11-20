@@ -1,6 +1,19 @@
 #!/usr/bin/env php
 <?php
+
+$container = require __DIR__ . '/bootstrap/app.php';
+
 $rootDir = __DIR__;
 $publicDir = $rootDir . '/public';
 
-passthru("php $publicDir/index.php");
+try {
+    if (env("APP_RUN", "async") === 'async') {
+        passthru("php $publicDir/index.php");
+    } else {
+        $uri = env("APP_URL", "127.0.0.1:8001");
+        exec("php -S {$uri} -t $publicDir");
+    }
+} catch (Exception $e) {
+    echo "\033[0;31mError: {$e->getMessage()}\033[0m\n";
+    exit(1);
+}

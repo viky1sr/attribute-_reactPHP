@@ -12,8 +12,15 @@ use Attribute;
 class RoutePut
 {
     public function __construct(
-        protected string $uri
-    ) {
-        RestControllerUsed::validateRestControllerUsage();
+        protected ?string $uri = null
+    ) {}
+
+    public function getNameUri() : array
+    {
+        return [
+            'method' => 'PUT',
+            'uri' => $this->uri,
+            'action' => '',
+        ];
     }
 }

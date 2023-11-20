@@ -12,7 +12,7 @@ use Attribute;
 class RoutePost
 {
     public function __construct(
-        protected string $uri
+        protected ?string $uri = null
     ){}
 
     public function getNameUri() : array
