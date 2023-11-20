@@ -6,7 +6,7 @@ A well-structured PHP project showcasing best practices for organization and sca
 
 ## Server
 
-The `server` directory contains files and scripts related to server configuration and execution.
+The `php server` directory contains files and scripts related to server configuration and execution.
 
 ### Server Script
 
