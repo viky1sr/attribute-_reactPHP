@@ -6,11 +6,11 @@ A well-structured PHP project showcasing best practices for organization and sca
 
 ## Server
 
-The `php server` directory contains files and scripts related to server configuration and execution.
+The `server` directory contains files and scripts related to server configuration and execution.
 
 ### Server Script
 
-A PHP script (`server`) is provided to simplify running the application. It can be executed from the command line to start the built-in PHP server.
+A PHP script (`php server`) is provided to simplify running the application. It can be executed from the command line to start the built-in PHP server.
 
 
 
